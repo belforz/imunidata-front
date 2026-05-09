@@ -1,4 +1,4 @@
-import type { FieldProps } from "../vite.env";
+import type { FieldProps } from "../../vite.env";
 
 export function Field({ label, placeholder, type = "text", options, className }: FieldProps) {
     const inputClass = `w-full px-3 py-2 border rounded ${className || 'border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200'}`;
