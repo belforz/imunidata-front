@@ -1,8 +1,12 @@
-export default function Page() {
-  //     const [activeId, setActiveId] = useState<string>(ROUTES[0].id)
+import { useState } from "react";
+import { Routers, ROUTES, METHOD_STYLES } from "../routes";
+import { Card } from "./card";
 
-  //   const activeRoute = ROUTES.find((r) => r.id === activeId)!
-  //   const activeStyle = METHOD_STYLES[activeRoute.method]
+export default function Page() {
+  const [activeId, setActiveId] = useState<string>(ROUTES[0].id);
+
+  const activeRoute = ROUTES.find((r) => r.id === activeId)!;
+  const activeStyle = METHOD_STYLES[activeRoute.method];
 
   return (
     <>
@@ -39,7 +43,38 @@ export default function Page() {
         </div>
       </header>
 
-      
+      <main className="max-w-5xl mx-auto px-5 py-7">
+        {/* TAB BAR */}
+        <Routers routes={ROUTES} activeId={activeId} onActiveChange={setActiveId} />
+        {/* CONTEUDO */}
+        <div
+          className="bg-white border-[1.5px] border-blue-800 border-t-0 rounded-b-xl p-7"
+          style={{ boxShadow: '0 6px 24px rgba(19, 81, 180, 0.07)' }}
+        >
+          <div className="flex items-center gap-3 pb-4 mb-5 border-b border-slate-200">
+            <div
+              className={`inline-flex items-center gap-2 ${activeStyle.bg} ${activeStyle.border} border rounded-md px-3 py-1.5`}
+            >
+              <span
+                className={`${activeStyle.badge} text-white text-[10px] font-bold px-2 py-0.5 rounded-sm tracking-wide`}
+              >
+                {activeRoute.method}
+              </span>
+              <code className={`font-mono text-[13px] font-medium ${activeStyle.text}`}>
+                {activeRoute.path}
+              </code>
+            </div>
+            <span className="text-[13px] text-slate-400">{activeRoute.description}</span>
+          </div>
+
+          {/* Card Dinamico */}
+          <Card httpMethod={activeRoute.method} />
+
+
+        </div>
+      </main>
+
+
     </>
   );
 }
