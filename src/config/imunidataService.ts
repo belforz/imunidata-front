@@ -16,9 +16,6 @@ export const postBodyRequest = async( body: any) => {
     try {
         const response = await imunidataApi.post('/vacinacao',
             {
-                headers: {
-                    'Content-Type':'application/json'
-                },
                 "body": body
             }
         );
@@ -36,11 +33,7 @@ export const postBodyFileRequest = async(file: File) => {
     try {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await imunidataApi.post('/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        const response = await imunidataApi.post('/upload', formData);
         return response.data;
     }
     catch(error){
@@ -74,11 +67,7 @@ export const getVacinacaoData = async(params: {vacina?: string, estado?: string}
 
 export const putVacinacaoData = async(id: string, body: any) => {
     try {
-        const response = await imunidataApi.put(`/vacinacao?id=${id}`, body, {
-            headers: {
-                'Content-Type':'application/json'
-            }
-        });
+        const response = await imunidataApi.put(`/vacinacao?id=${id}`, body);
         return response.data;
     }
     catch(error){

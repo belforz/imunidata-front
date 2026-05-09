@@ -8,3 +8,11 @@ interface ImportMetaEnv {
 interface ImportMeta {
     readonly env: ImportMetaEnv
 }
+
+export interface FieldProps {
+  label: string
+  placeholder?: string
+  type?: string
+  options?: string[]
+  className?: string
+}
