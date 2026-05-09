@@ -68,7 +68,7 @@ export default function Page() {
           </div>
 
           {/* Card Dinamico */}
-          <Card httpMethod={activeRoute.method} />
+          <Card httpMethod={activeRoute.method} showGetFilter={activeRoute.id !== 'get-vacinacao'} />
 
 
         </div>

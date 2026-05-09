@@ -84,14 +84,14 @@ export const ROUTES: Route[] = [
     id: "get-vacinacao-cidade",
     method: "GET",
     path: "/vacinacao?cidade={cidade}",
-    label: "Buscar Vacinação por Cidade",
+    label: "por Cidade",
     description: "Lista vacinas com filtros opcionais",
   },
   {
     id: "get-vacinacao-estado",
     method: "GET",
     path: "/vacinacao?estado={estado}",
-    label: "Buscar Vacinação por Estado",
+    label: "por Estado",
     description: "Lista vacinas com filtros opcionais",
   },
 ];

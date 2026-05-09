@@ -1,11 +1,13 @@
 import { imunidataApi } from "../api/axios-config";
+import { Notifications } from "../components/notifications";
 
 export const checkChatHealth = async() =>{
     try {
     const response = await imunidataApi.get('/healthz');
     return response.data;
-    } catch(error){
+    } catch(error: any){
         console.error("API fora do ar:", error)
+        Notifications("error", "API fora do ar", error.message);
         throw error;
     }
 }
@@ -21,8 +23,9 @@ export const postBodyRequest = async( body: any) => {
         );
         return response.data;
     }
-    catch(error){
+    catch(error: any){
         console.error("Erro ao enviar a requisição:", error);
+        Notifications("error", "Erro ao enviar a requisição", error.message);
         throw error;
     }
 }
@@ -33,11 +36,12 @@ export const postBodyFileRequest = async(file: File) => {
     try {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await imunidataApi.post('/upload', formData);
+        const response = await imunidataApi.post('/vacinacao/with-file', formData);
         return response.data;
     }
-    catch(error){
+    catch(error: any){
         console.error("Erro ao enviar a requisição:", error);
+        Notifications("error", "Erro ao enviar a requisição", error.message);
         throw error;
     }
 }
@@ -57,8 +61,9 @@ export const getVacinacaoData = async(params: {vacina?: string, estado?: string}
             return response.data;
         }
     }
-    catch(error){
+    catch(error: any){
         console.error("Erro ao buscar os dados de vacinação:", error);
+        Notifications("error", "Erro ao buscar os dados de vacinação", error.message);
         throw error;
     }
 }
@@ -70,21 +75,23 @@ export const putVacinacaoData = async(id: string, body: any) => {
         const response = await imunidataApi.put(`/vacinacao?id=${id}`, body);
         return response.data;
     }
-    catch(error){
+    catch(error: any){
         console.error("Erro ao atualizar os dados de vacinação:", error);
+        Notifications("error", "Erro ao atualizar os dados de vacinação", error.message);
         throw error;
     }
 }
 
 // DELETE /vacinacao?$id para deletar os dados de vacinação
 
-export const deletaVacinacaoData = async(id: string) => {
+export const deleteVacinacaoData = async(id: string) => {
     try {
         const response = await imunidataApi.delete(`/vacinacao?id=${id}`);
         return response.data;
     }
-    catch(error){
+    catch(error: any){
         console.error("Erro ao deletar os dados de vacinação:", error);
+        Notifications("error", "Erro ao deletar os dados de vacinação", error.message);
         throw error;
     }
 }

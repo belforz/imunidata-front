@@ -1,18 +1,21 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-    readonly VITE_IMUNIDATA_BASE_URL: string,
-    readonly VITE_IMUNIDATA_DOCS: string,
+  readonly VITE_IMUNIDATA_BASE_URL: string;
+  readonly VITE_IMUNIDATA_DOCS: string;
 }
 
 interface ImportMeta {
-    readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv;
 }
 
 export interface FieldProps {
-  label: string
-  placeholder?: string
-  type?: string
-  options?: string[]
-  className?: string
+  label: string;
+  placeholder?: string;
+  type?: string;
+  options?: string[];
+  className?: string | undefined;
+  value?: string;
+  onChange?: (value: string) => void;
+  isVisible?: boolean;
 }
