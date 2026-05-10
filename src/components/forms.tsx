@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { LucideSave, Search } from "lucide-react";
-import { Button } from "./ui/button";
-import { Field } from "./ui/field";
-import { SectionTitle } from "./ui/sectionTitle";
+import { Button } from "../ui/button";
+import { Field } from "../ui/field";
+import { SectionTitle } from "../ui/sectionTitle";
 import type { HttpMethod, GetMode } from "../types";
-import { WarnBox } from "./ui/warnBox";
-import { InfoBox} from "./ui/infoBox";
+import { WarnBox } from "../ui/warnBox";
+import { InfoBox} from "../ui/infoBox";
 
 interface FormsProps {
   httpMethod: HttpMethod;

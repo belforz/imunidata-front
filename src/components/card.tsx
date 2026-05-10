@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { HttpMethod, GetMode } from "../types";
 import { Forms } from "./forms";
-import { ResponseArea } from "./ui/responseArea";
+import { ResponseArea } from "../ui/responseArea";
 import { useImuniDataApi } from "../hooks/useImuniDataApi";
 
 interface CardProps {
