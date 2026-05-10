@@ -4,7 +4,7 @@ import { Notifications } from "../components/notifications";
 export const checkChatHealth = async() =>{
     try {
     const response = await imunidataApi.get('/healthz');
-    return response.data;
+    return { data: response.data, status: response.status };
     } catch(error: any){
         console.error("API fora do ar:", error)
         Notifications("error", "API fora do ar", error.message);
@@ -17,7 +17,7 @@ export const checkChatHealth = async() =>{
 export const postBodyRequest = async( body: any) => {
     try {
         const response = await imunidataApi.post('/vacinacao', body);
-        return response.data;
+        return { data: response.data, status: response.status };
     }
     catch(error: any){
         console.error("Erro ao enviar a requisição:", error);
@@ -33,7 +33,7 @@ export const postBodyFileRequest = async(file: File) => {
         const formData = new FormData();
         formData.append('file', file);
         const response = await imunidataApi.post('/vacinacao/with-file', formData);
-        return response.data;
+        return { data: response.data, status: response.status };
     }
     catch(error: any){
         console.error("Erro ao enviar a requisição:", error);
@@ -57,10 +57,8 @@ export const getVacinacaoData = async (params: { id?: string; vacina?: string; e
         // com id
         if (hasId) {
             const response = await imunidataApi.get(`/vacinacao/${encodeURIComponent(String(id))}`);
-            if (Array.isArray(response.data)) {
-                return response.data.length ? response.data[0] : null;
-            }
-            return response.data;
+            const payload = Array.isArray(response.data) ? (response.data.length ? response.data[0] : null) : response.data;
+            return { data: payload, status: response.status };
         }
 
         // sem filtro, get all
@@ -78,7 +76,7 @@ export const getVacinacaoData = async (params: { id?: string; vacina?: string; e
         const url = queryString ? `/vacinacao?${queryString}` : `/vacinacao`;
 
         const response = await imunidataApi.get(url);
-        return response.data;
+        return { data: response.data, status: response.status };
     } catch (error: any) {
         console.error("Erro ao buscar os dados de vacinação:", error);
         Notifications("error", "Erro ao buscar os dados de vacinação", error.message);
@@ -91,7 +89,7 @@ export const getVacinacaoData = async (params: { id?: string; vacina?: string; e
 export const putVacinacaoData = async(id: string, body: any) => {
     try {
         const response = await imunidataApi.put(`/vacinacao/${encodeURIComponent(String(id))}`, body);
-        return response.data;
+        return { data: response.data, status: response.status };
     }
     catch(error: any){
         console.error("Erro ao atualizar os dados de vacinação:", error);
@@ -105,7 +103,7 @@ export const putVacinacaoData = async(id: string, body: any) => {
 export const deleteVacinacaoData = async(id: string) => {
     try {
         const response = await imunidataApi.delete(`/vacinacao/${encodeURIComponent(String(id))}`);
-        return response.data;
+        return { data: response.data, status: response.status };
     }
     catch(error: any){
         console.error("Erro ao deletar os dados de vacinação:", error);

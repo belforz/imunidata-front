@@ -1,12 +1,18 @@
 import { toast } from 'react-toastify';
 
+let toastCounter = 0;
+
 export function Notifications(type: "success" | "error" | "info" | "warn", message: string, description?: string) {
+  toastCounter += 1;
+  const prefix = `#${toastCounter} `;
   const content = description ? (
     <div>
-      <p className="font-semibold text-sm">{message}</p>
+      <p className="font-semibold text-sm">{prefix}{message}</p>
       <p className="text-xs text-slate-500 mt-0.5">{description}</p>
     </div>
-  ) : message;
+  ) : (
+    <span>{prefix}{message}</span>
+  );
 
   switch (type) {
     case "success":
