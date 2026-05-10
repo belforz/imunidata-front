@@ -2,7 +2,7 @@
 
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-export type GetMode = 'id' | 'estado' | 'vacina' | 'ambos'
+export type GetMode = 'id' | 'estado' | 'vacina' | 'ambos' | 'todos'
 
 export type ImuniData = {
     id: string;

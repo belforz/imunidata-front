@@ -6,6 +6,7 @@ import type { GetMode } from "../types";
 function computeGetMode(routeId: string): GetMode {
   if (routeId === "get-vacinacao-estado") return "estado";
   if (routeId === "get-vacinacao-vacina") return "vacina";
+  if (routeId === "get-vacinacao-todos") return "todos";
   if (routeId === "get-vacinacao-filtros") return "ambos";
   return "id";
 }

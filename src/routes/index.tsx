@@ -55,7 +55,7 @@ export const ROUTES: Route[] = [
   {
     id: "get-vacinacao",
     method: "GET",
-    path: "/vacinacao",
+    path: "/vacinacao{id}",
     label: "Buscar Vacinação",
     description: "Busca uma vacinação pelo ID",
   },
@@ -79,6 +79,14 @@ export const ROUTES: Route[] = [
     path: "/vacinacao/{id}",
     label: "Remover Vacinação",
     description: "Remove permanentemente o registro da vacinação",
+  },
+  {
+    id: "get-vacinacao-todos",
+    method: "GET", 
+    path: "/vacinacao",
+    label: "Buscar Filtra Todos",
+    description: "Busca todas as vacinações",
+
   },
   {
     id: "get-vacinacao-vacina",

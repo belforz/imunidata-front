@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LucideSave, Search } from "lucide-react";
 import { Button } from "./ui/button";
 import { Field } from "./ui/field";
@@ -12,10 +12,11 @@ interface FormsProps {
   loading: boolean;
   onSubmit: (data: Record<string, unknown>) => void;
   onSubmitFile?: (file: File) => void;
+  response?: unknown;
   getMode?: GetMode;
 }
 
-export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "id" }: FormsProps) {
+export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, response, getMode = "id" }: FormsProps) {
   // GET
   const [getId, setGetId] = useState("");
   const [getEstado, setGetEstado] = useState("");
@@ -52,6 +53,30 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "
   const [motivo, setMotivo] = useState("");
   const [confirmar, setConfirmar] = useState("");
 
+  // validadores
+  const isInteger = (v: string) => /^[0-9]+$/.test(v || "");
+  const isNonEmpty = (v: string) => typeof v === "string" && v.trim().length > 0;
+  const safeParseInt = (v: string) => {
+    const n = parseInt(v as string, 10);
+    return Number.isNaN(n) ? undefined : n;
+  };
+
+  // when parent performs GET by id, `response` will contain payload; populate PUT fields
+  useEffect(() => {
+    if (httpMethod !== "PUT") return;
+    const res: any = response as any;
+    if (!res) return;
+    const payload = res.data ?? res;
+    if (!payload) return;
+    setPutId(payload.id ? String(payload.id) : "");
+    setPutMunicipio(payload.municipio ?? "");
+    setPutEstado(payload.estado ?? "");
+    setPutVacina(payload.vacina ?? "");
+    setPutDose(payload.dose ?? "");
+    setPutQuantidade(payload.quantidadeAplicada !== undefined ? String(payload.quantidadeAplicada) : "");
+    setPutDataRegistro(payload.dataRegistro ?? "");
+  }, [response]);
+
   return (
     <>
       {httpMethod === "GET" && (
@@ -62,6 +87,7 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "
             {getMode === "estado" && <>Informe o Estado para filtrar as vacinações registradas.</>}
             {getMode === "vacina" && <>Informe o nome da Vacina para filtrar as vacinações registradas.</>}
             {getMode === "ambos" && <>Informe o Estado e/ou a Vacina para filtrar as vacinações.</>}
+            {getMode === "todos" && <>Busca todas as vacinações registradas.</>}
           </InfoBox>
           <div className="flex gap-2.5 mb-6">
             <Field
@@ -96,15 +122,17 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "
                   if (getMode === "id") onSubmit({ id: getId });
                   else if (getMode === "estado") onSubmit({ estado: getEstado });
                   else if (getMode === "vacina") onSubmit({ vacina: getVacina });
+                  else if (getMode === "todos") onSubmit({});
                   else onSubmit({ estado: getEstado, vacina: getVacina });
                 }}
                 icon={Search}
                 disabled={
                   loading ||
-                  (getMode === "id" ? !getId :
-                   getMode === "estado" ? !getEstado :
-                   getMode === "vacina" ? !getVacina :
-                   (!getEstado && !getVacina))
+                  (getMode === "id" ? !isInteger(getId) :
+                   getMode === "estado" ? !isNonEmpty(getEstado) :
+                   getMode === "vacina" ? !isNonEmpty(getVacina) :
+                   getMode === "todos" ? false :
+                   (!isNonEmpty(getEstado) && !isNonEmpty(getVacina)))
                 }
               />
             </div>
@@ -122,15 +150,15 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "
             <Field label="Estado" placeholder="String" value={estado} onChange={setEstado} />
             <Field label="Vacina" placeholder="String" value={vacina} onChange={setVacina} />
             <Field label="Dose" placeholder="String" value={dose} onChange={setDose} />
-            <Field label="Quantidade Aplicada" placeholder="Número inteiro" value={quantidade} onChange={setQuantidade} />
+            <Field label="Quantidade Aplicada" placeholder="Número inteiro" type="number" value={quantidade} onChange={setQuantidade} />
             <Field label="Data de Registro" placeholder="YYYY-MM-DDTHH:MM" type="datetime-local" value={dataRegistro} onChange={setDataRegistro} />
           </div>
           <div className="flex items-center justify-between mb-5">
             <Button
               label="Cadastrar Vacinação"
               colorClass="bg-blue-800 hover:bg-blue-900"
-              onClick={() => onSubmit({ municipio, estado, vacina, dose, quantidadeAplicada: quantidade, dataRegistro: normalizeLocalDateTime(dataRegistro) })}
-              disabled={loading}
+              onClick={() => onSubmit({ municipio, estado, vacina, dose, quantidadeAplicada: safeParseInt(quantidade), dataRegistro: normalizeLocalDateTime(dataRegistro) })}
+              disabled={loading || !isNonEmpty(municipio) || !isNonEmpty(estado) || !isNonEmpty(vacina) || !isNonEmpty(dose) || !isInteger(quantidade) || !isNonEmpty(dataRegistro)}
             />
           </div>
 
@@ -176,7 +204,7 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "
               colorClass="bg-amber-600 hover:bg-amber-700"
               onClick={() => onSubmit({ id: putId })}
               icon={Search}
-              disabled={loading || !putId}
+              disabled={loading || !isInteger(putId)}
             />
           </div>
           <div className="grid grid-cols-2 gap-3.5 mb-4">
@@ -184,15 +212,15 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "
             <Field label="Estado" placeholder="String" value={putEstado} onChange={setPutEstado} />
             <Field label="Vacina" placeholder="String" value={putVacina} onChange={setPutVacina} />
             <Field label="Dose" placeholder="String" value={putDose} onChange={setPutDose} />
-            <Field label="Quantidade Aplicada" placeholder="Número inteiro" value={putQuantidade} onChange={setPutQuantidade} />
+            <Field label="Quantidade Aplicada" placeholder="Número inteiro" type="number" value={putQuantidade} onChange={setPutQuantidade} />
             <Field label="Data de Registro" placeholder="YYYY-MM-DDTHH:MM" type="datetime-local" value={putDataRegistro} onChange={setPutDataRegistro} />
           </div>
           <Button
             label="Atualizar Vacinação"
             colorClass="bg-amber-600 hover:bg-amber-700"
             icon={LucideSave}
-            onClick={() => onSubmit({ id: putId, municipio: putMunicipio, estado: putEstado, vacina: putVacina, dose: putDose, quantidadeAplicada: putQuantidade, dataRegistro: normalizeLocalDateTime(putDataRegistro) })}
-            disabled={loading || !putId}
+            onClick={() => onSubmit({ id: putId, municipio: putMunicipio, estado: putEstado, vacina: putVacina, dose: putDose, quantidadeAplicada: safeParseInt(putQuantidade), dataRegistro: normalizeLocalDateTime(putDataRegistro) })}
+            disabled={loading || !isInteger(putId)}
           />
         </>
       )}
@@ -226,7 +254,7 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "
             label="Excluir Vacinação"
             colorClass="bg-red-600 hover:bg-red-700"
             onClick={() => onSubmit({ id: deleteId, motivo, confirmar })}
-            disabled={loading || confirmar !== "CONFIRMAR" || !deleteId}
+            disabled={loading || confirmar !== "CONFIRMAR" || !isInteger(deleteId)}
           />
         </>
       )}

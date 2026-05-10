@@ -16,14 +16,22 @@ export function Card({ httpMethod, getMode = "id" }: CardProps) {
 
   function handleSubmit(data: Record<string, unknown>) {
     if (httpMethod === "GET") {
-      search({
+      search(
+        {
         id: (data.id as string) || undefined,
         estado: (data.estado as string) || undefined,
         vacina: (data.vacina as string) || undefined,
       });
+
     } else if (httpMethod === "POST") {
       create(data, resetForm);
     } else if (httpMethod === "PUT") {
+      // if payload is only { id } treat as a GET by id to prefill the form
+      const keys = Object.keys(data).filter((k) => data[k] !== undefined && data[k] !== "");
+      if (keys.length === 1 && keys[0] === "id") {
+        search({ id: data.id as string });
+        return;
+      }
       update(data.id as string, data, resetForm);
     } else if (httpMethod === "DELETE") {
       deleteData(data.id as string);
@@ -32,7 +40,7 @@ export function Card({ httpMethod, getMode = "id" }: CardProps) {
 
   return (
     <>
-      <Forms key={formKey} httpMethod={httpMethod} loading={loading} onSubmit={handleSubmit} onSubmitFile={createWithFile} getMode={getMode} />
+      <Forms key={formKey} httpMethod={httpMethod} loading={loading} onSubmit={handleSubmit} onSubmitFile={createWithFile} getMode={getMode} response={response} />
       <ResponseArea response={response} loading={loading} error={error} />
     </>
   );

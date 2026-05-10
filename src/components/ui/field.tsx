@@ -20,7 +20,14 @@ export function Field({ label, placeholder, type = "text", options, className, v
                     ))}
                 </select>
             ) : (
-                <input type={type} className={inputClass} placeholder={placeholder} value={value} onChange={(e) => onChange?.(e.target.value)} />
+                <input
+                    type={type}
+                    className={inputClass}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => onChange?.(e.target.value)}
+                    {...(type === "number" ? { min: 0, step: 1, max: 10000 } : {})}
+                />
             )}
         </div>
     );

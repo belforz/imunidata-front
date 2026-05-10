@@ -64,7 +64,7 @@ export const getVacinacaoData = async (params: { id?: string; vacina?: string; e
         // sem filtro, get all
         if (!hasVacina && !hasEstado) {
             const response = await imunidataApi.get("/vacinacao");
-            return response.data;
+            return { data: response.data, status: response.status };
         }
 
         // com filtros opcionais (vacina, estado ou ambos) — sempre construir um único query
