@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Routers, ROUTES, METHOD_STYLES } from "../routes";
 import { Card } from "./card";
+import type { GetMode } from "../types";
+
+function computeGetMode(routeId: string): GetMode {
+  if (routeId === "get-vacinacao-estado") return "estado";
+  if (routeId === "get-vacinacao-vacina") return "vacina";
+  if (routeId === "get-vacinacao-filtros") return "ambos";
+  return "id";
+}
 
 export default function Page() {
   const [activeId, setActiveId] = useState<string>(ROUTES[0].id);
@@ -68,7 +76,7 @@ export default function Page() {
           </div>
 
           {/* Card Dinamico */}
-          <Card httpMethod={activeRoute.method} showGetFilter={activeRoute.id !== 'get-vacinacao'} />
+          <Card key={activeId} httpMethod={activeRoute.method} getMode={computeGetMode(activeId)} />
 
 
         </div>

@@ -81,10 +81,10 @@ export const ROUTES: Route[] = [
     description: "Remove permanentemente o registro da vacinação",
   },
   {
-    id: "get-vacinacao-cidade",
+    id: "get-vacinacao-vacina",
     method: "GET",
-    path: "/vacinacao?cidade={cidade}",
-    label: "por Cidade",
+    path: "/vacinacao?vacina={vacina}",
+    label: "por Vacina",
     description: "Lista vacinas com filtros opcionais",
   },
   {
@@ -92,7 +92,14 @@ export const ROUTES: Route[] = [
     method: "GET",
     path: "/vacinacao?estado={estado}",
     label: "por Estado",
-    description: "Lista vacinas com filtros opcionais",
+    description: "Filtra vacinações por Estado",
+  },
+  {
+    id: "get-vacinacao-filtros",
+    method: "GET",
+    path: "/vacinacao?filtros",
+    label: "por Filtros",
+    description: "Filtra vacinações por Estado e Vacina",
   },
 ];
 

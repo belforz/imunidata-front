@@ -16,11 +16,7 @@ export const checkChatHealth = async() =>{
 
 export const postBodyRequest = async( body: any) => {
     try {
-        const response = await imunidataApi.post('/vacinacao',
-            {
-                "body": body
-            }
-        );
+        const response = await imunidataApi.post('/vacinacao', body);
         return response.data;
     }
     catch(error: any){
@@ -48,31 +44,53 @@ export const postBodyFileRequest = async(file: File) => {
 
 // GET /vacinacao  |  GET /vacinacao?vacina=BCG  |  GET /vacinacao?estado=SP
 
-export const getVacinacaoData = async(params: {vacina?: string, estado?: string}) => {
+export const getVacinacaoData = async (params: { id?: string; vacina?: string; estado?: string } = {}) => {
     try {
-        const response = await imunidataApi.get('/vacinacao', { params });
-        if( params.vacina != null && params.estado != null) {
-            return response.data.filter((item: any) => item.vacina === params.vacina && item.estado === params.estado);
+        const id = params?.id ?? undefined;
+        const vacina = params?.vacina ?? undefined;
+        const estado = params?.estado ?? undefined;
 
-        }
-        if( params.vacina != null) { return response.data.filter((item: any) => item.vacina === params.vacina); }
-        if( params.estado != null) { return response.data.filter((item: any) => item.estado === params.estado); }
-        else{
+        const hasId = id !== undefined && String(id).trim() !== "";
+        const hasVacina = vacina !== undefined && String(vacina).trim() !== "";
+        const hasEstado = estado !== undefined && String(estado).trim() !== "";
+
+        // com id
+        if (hasId) {
+            const response = await imunidataApi.get(`/vacinacao/${encodeURIComponent(String(id))}`);
+            if (Array.isArray(response.data)) {
+                return response.data.length ? response.data[0] : null;
+            }
             return response.data;
         }
-    }
-    catch(error: any){
+
+        // sem filtro, get all
+        if (!hasVacina && !hasEstado) {
+            const response = await imunidataApi.get("/vacinacao");
+            return response.data;
+        }
+
+        // com filtros opcionais (vacina, estado ou ambos) — sempre construir um único query
+        const query: Record<string, string> = {};
+        if (hasVacina) query.vacina = String(vacina);
+        if (hasEstado) query.estado = String(estado);
+
+        const queryString = new URLSearchParams(query).toString();
+        const url = queryString ? `/vacinacao?${queryString}` : `/vacinacao`;
+
+        const response = await imunidataApi.get(url);
+        return response.data;
+    } catch (error: any) {
         console.error("Erro ao buscar os dados de vacinação:", error);
         Notifications("error", "Erro ao buscar os dados de vacinação", error.message);
         throw error;
     }
-}
+};
 
 // PUT /vacinacao?$id para atualizar os dados de vacinação
 
 export const putVacinacaoData = async(id: string, body: any) => {
     try {
-        const response = await imunidataApi.put(`/vacinacao?id=${id}`, body);
+        const response = await imunidataApi.put(`/vacinacao/${encodeURIComponent(String(id))}`, body);
         return response.data;
     }
     catch(error: any){
@@ -86,7 +104,7 @@ export const putVacinacaoData = async(id: string, body: any) => {
 
 export const deleteVacinacaoData = async(id: string) => {
     try {
-        const response = await imunidataApi.delete(`/vacinacao?id=${id}`);
+        const response = await imunidataApi.delete(`/vacinacao/${encodeURIComponent(String(id))}`);
         return response.data;
     }
     catch(error: any){

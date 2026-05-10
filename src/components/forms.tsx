@@ -3,7 +3,7 @@ import { LucideSave, Search } from "lucide-react";
 import { Button } from "./ui/button";
 import { Field } from "./ui/field";
 import { SectionTitle } from "./ui/sectionTitle";
-import type { HttpMethod } from "../types";
+import type { HttpMethod, GetMode } from "../types";
 import { WarnBox } from "./ui/warnBox";
 import { InfoBox} from "./ui/infoBox";
 
@@ -12,13 +12,23 @@ interface FormsProps {
   loading: boolean;
   onSubmit: (data: Record<string, unknown>) => void;
   onSubmitFile?: (file: File) => void;
-  showGetFilter?: boolean;
+  getMode?: GetMode;
 }
 
-export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, showGetFilter = true }: FormsProps) {
+export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, getMode = "id" }: FormsProps) {
   // GET
   const [getId, setGetId] = useState("");
-  const [getEstadoCidade, setGetEstadoCidade] = useState("");
+  const [getEstado, setGetEstado] = useState("");
+  const [getVacina, setGetVacina] = useState("");
+
+  function normalizeLocalDateTime(value: string) {
+    if (!value) return undefined;
+    // browser `datetime-local` usually yields YYYY-MM-DDTHH:MM
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return `${value}:00`;
+    // if user provided only date YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return `${value}T00:00:00`;
+    return value;
+  }
 
   // POST
   const [municipio, setMunicipio] = useState("");
@@ -48,9 +58,10 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, showGetFilt
         <div className="flex flex-col gap-5">
           <SectionTitle>Parametros de Busca</SectionTitle>
           <InfoBox>
-            O campo Id da Vacinação é obrigatório. Informe o valor e pressione
-            Buscar, os dados da vacinação serão carregados automaticamente sem
-            recarregar a página.
+            {getMode === "id" && <>O campo Id da Vacinação é obrigatório. Informe o valor e pressione Buscar.</>}
+            {getMode === "estado" && <>Informe o Estado para filtrar as vacinações registradas.</>}
+            {getMode === "vacina" && <>Informe o nome da Vacina para filtrar as vacinações registradas.</>}
+            {getMode === "ambos" && <>Informe o Estado e/ou a Vacina para filtrar as vacinações.</>}
           </InfoBox>
           <div className="flex gap-2.5 mb-6">
             <Field
@@ -59,22 +70,42 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, showGetFilt
               className="flex-1"
               value={getId}
               onChange={setGetId}
+              isVisible={getMode === "id"}
             />
             <Field
-              label="Por Estado ou Cidade (opcional)"
+              label="Por Estado"
               placeholder="String"
               className="flex-1"
-              value={getEstadoCidade}
-              onChange={setGetEstadoCidade}
-              isVisible={showGetFilter}
+              value={getEstado}
+              onChange={setGetEstado}
+              isVisible={getMode === "estado" || getMode === "ambos"}
+            />
+            <Field
+              label="Por Vacina"
+              placeholder="String"
+              className="flex-1"
+              value={getVacina}
+              onChange={setGetVacina}
+              isVisible={getMode === "vacina" || getMode === "ambos"}
             />
             <div className="flex items-end">
               <Button
                 label="Buscar"
                 colorClass="bg-green-700 hover:bg-green-800"
-                onClick={() => onSubmit({ id: getId, estado: getEstadoCidade, vacina: getEstadoCidade })}
+                onClick={() => {
+                  if (getMode === "id") onSubmit({ id: getId });
+                  else if (getMode === "estado") onSubmit({ estado: getEstado });
+                  else if (getMode === "vacina") onSubmit({ vacina: getVacina });
+                  else onSubmit({ estado: getEstado, vacina: getVacina });
+                }}
                 icon={Search}
-                disabled={loading || !getId}
+                disabled={
+                  loading ||
+                  (getMode === "id" ? !getId :
+                   getMode === "estado" ? !getEstado :
+                   getMode === "vacina" ? !getVacina :
+                   (!getEstado && !getVacina))
+                }
               />
             </div>
           </div>
@@ -92,13 +123,13 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, showGetFilt
             <Field label="Vacina" placeholder="String" value={vacina} onChange={setVacina} />
             <Field label="Dose" placeholder="String" value={dose} onChange={setDose} />
             <Field label="Quantidade Aplicada" placeholder="Número inteiro" value={quantidade} onChange={setQuantidade} />
-            <Field label="Data de Registro" placeholder="YYYY-MM-DD" value={dataRegistro} onChange={setDataRegistro} />
+            <Field label="Data de Registro" placeholder="YYYY-MM-DDTHH:MM" type="datetime-local" value={dataRegistro} onChange={setDataRegistro} />
           </div>
           <div className="flex items-center justify-between mb-5">
             <Button
               label="Cadastrar Vacinação"
               colorClass="bg-blue-800 hover:bg-blue-900"
-              onClick={() => onSubmit({ municipio, estado, vacina, dose, quantidadeAplicada: quantidade, dataRegistro })}
+              onClick={() => onSubmit({ municipio, estado, vacina, dose, quantidadeAplicada: quantidade, dataRegistro: normalizeLocalDateTime(dataRegistro) })}
               disabled={loading}
             />
           </div>
@@ -154,13 +185,13 @@ export function Forms({ httpMethod, loading, onSubmit, onSubmitFile, showGetFilt
             <Field label="Vacina" placeholder="String" value={putVacina} onChange={setPutVacina} />
             <Field label="Dose" placeholder="String" value={putDose} onChange={setPutDose} />
             <Field label="Quantidade Aplicada" placeholder="Número inteiro" value={putQuantidade} onChange={setPutQuantidade} />
-            <Field label="Data de Registro" placeholder="YYYY-MM-DD" value={putDataRegistro} onChange={setPutDataRegistro} />
+            <Field label="Data de Registro" placeholder="YYYY-MM-DDTHH:MM" type="datetime-local" value={putDataRegistro} onChange={setPutDataRegistro} />
           </div>
           <Button
             label="Atualizar Vacinação"
             colorClass="bg-amber-600 hover:bg-amber-700"
             icon={LucideSave}
-            onClick={() => onSubmit({ id: putId, municipio: putMunicipio, estado: putEstado, vacina: putVacina, dose: putDose, quantidadeAplicada: putQuantidade, dataRegistro: putDataRegistro })}
+            onClick={() => onSubmit({ id: putId, municipio: putMunicipio, estado: putEstado, vacina: putVacina, dose: putDose, quantidadeAplicada: putQuantidade, dataRegistro: normalizeLocalDateTime(putDataRegistro) })}
             disabled={loading || !putId}
           />
         </>

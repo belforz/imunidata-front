@@ -9,19 +9,19 @@ import {
 
 interface ApiState {
   loading: boolean;
-  response: unknown | null;
+  response: unknown;
   error: string | null;
 }
 
 export function useImuniDataApi() {
   const [state, setState] = useState<ApiState>({
     loading: false,
-    response: null,
+    response: undefined,
     error: null,
   });
 
   function setLoading() {
-    setState({ loading: true, response: null, error: null });
+    setState({ loading: true, response: undefined, error: null });
   }
 
   function setSuccess(response: unknown) {
@@ -29,10 +29,10 @@ export function useImuniDataApi() {
   }
 
   function setError(error: string) {
-    setState({ loading: false, response: null, error });
+    setState({ loading: false, response: undefined, error });
   }
 
-  async function search(params: { vacina?: string; estado?: string }) {
+  async function search(params: { id?: string; vacina?: string; estado?: string }) {
     setLoading();
     try {
       const data = await getVacinacaoData(params);
